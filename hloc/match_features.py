@@ -68,6 +68,8 @@ def main(conf, pairs, features, export_dir, exhaustive=False):
             f.write('\n'.join(pair_list))
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#     device = 'cuda'
+    print(device)
     Model = dynamic_load(matchers, conf['model']['name'])
     model = Model(conf['model']).eval().to(device)
 

@@ -64,16 +64,17 @@ def get_image_ids(database_path):
 
 
 def run_reconstruction(colmap_path, model_path, database_path, image_dir,
-                       min_num_matches=None):
+                       min_num_matches=None, hierarchical=False):
     logging.info('Running the 3D reconstruction...')
     model_path.mkdir(exist_ok=True)
-
+    app_str = 'hierarchical_mapper' if hierarchical else 'mapper'
     cmd = [
-        str(colmap_path), 'mapper',
+        str(colmap_path), app_str,
         '--database_path', str(database_path),
         '--image_path', str(image_dir),
         '--output_path', str(model_path),
-        '--Mapper.num_threads', str(min(multiprocessing.cpu_count(), 16))]
+        '--Mapper.num_threads', str(multiprocessing.cpu_count())]
+#         '--Mapper.num_threads', str(min(multiprocessing.cpu_count(), 16))]
     if min_num_matches:
         cmd += ['--Mapper.min_num_matches', str(min_num_matches)]
     logging.info(' '.join(cmd))
@@ -122,6 +123,7 @@ def run_reconstruction(colmap_path, model_path, database_path, image_dir,
 
 
 def main(sfm_dir, image_dir, pairs, features, matches,
+         hierarchical=False,
          colmap_path='colmap', single_camera=False,
          skip_geometric_verification=False,
          min_match_score=None, min_num_matches=None):
@@ -145,7 +147,7 @@ def main(sfm_dir, image_dir, pairs, features, matches,
     if not skip_geometric_verification:
         geometric_verification(colmap_path, database, pairs)
     stats = run_reconstruction(
-        colmap_path, models, database, image_dir, min_num_matches)
+        colmap_path, models, database, image_dir, min_num_matches, hierarchical)
     stats['num_input_images'] = len(image_ids)
     logging.info(f'Statistics:\n{pprint.pformat(stats)}')
 
@@ -165,6 +167,7 @@ if __name__ == '__main__':
     parser.add_argument('--skip_geometric_verification', action='store_true')
     parser.add_argument('--min_match_score', type=float)
     parser.add_argument('--min_num_matches', type=int)
+    parser.add_argument('--hierarchical', action='store_true')
     args = parser.parse_args()
 
     main(**args.__dict__)

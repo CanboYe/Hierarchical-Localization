@@ -108,7 +108,10 @@ def main(reference_sfm, queries, retrieval, features, matches, results,
     logging.info('Reading 3D model...')
     _, db_images, points3D = read_model(str(reference_sfm), '.bin')
     db_name_to_id = {image.name: i for i, image in db_images.items()}
-
+    
+    print(len(db_images.items()))
+#     print(db_images)
+    
     feature_file = h5py.File(features, 'r')
     match_file = h5py.File(matches, 'r')
 
@@ -167,6 +170,8 @@ def main(reference_sfm, queries, retrieval, features, matches, results,
             if ret['success']:
                 poses[qname] = (ret['qvec'], ret['tvec'])
             else:
+                print(db_ids)
+#                 print(db_images)
                 closest = db_images[db_ids[0]]
                 poses[qname] = (closest.qvec, closest.tvec)
             logs['loc'][qname] = {
