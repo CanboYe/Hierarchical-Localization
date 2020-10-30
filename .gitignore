@@ -2,5 +2,4 @@ __pycache__
 *.pyc
 outputs/
 test_query/
-netvlad_tf/
 .ipynb_checkpoints/
